@@ -84,7 +84,21 @@ router.post("/auth/register", registerCtrl);
  *             $ref: '#/components/schemas/AuthLogin'
  *     responses:
  *       200:
- *         description: Inicio de sesión exitoso
+ *        description: Inicio de sesión exitoso
+ *        content:
+ *          application/json:
+ *           schema:
+ *            type: object
+ *            properties:
+ *             accessToken:
+ *              type: string
+ *              description: Token de acceso
+ *             user:
+ *              type: object
+ *              description: Información del usuario
+ *             email:
+ *              type: string
+ *              description: Email del usuario
  *       400:
  *         description: Error en la solicitud
  */

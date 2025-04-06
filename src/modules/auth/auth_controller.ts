@@ -24,8 +24,19 @@ const loginCtrl = async ({ body }: Request, res: Response) => {
         if (responseUser === 'NOT_FOUND_USER') {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
-
-        return res.json(responseUser);
+        res.cookie('token', responseUser.accessToken,{
+            httpOnly: true,
+            secure: false, 
+            sameSite: 'none',
+            maxAge: 86400000 // 1 día
+        });
+        res.cookie('refreshToken', responseUser.refreshToken,{
+            httpOnly: true,
+            secure: false,
+            sameSite: 'none',
+            maxAge: 86400000 // 1 día
+        });
+        return res.json({user: responseUser.user, accessToken: responseUser.accessToken, email: responseUser.user.email});
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
     }

@@ -1,8 +1,7 @@
 import { encrypt, verified } from "../../utils/bcrypt.handle.js";
-import { generateToken } from "../../utils/jwt.handle.js";
+import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.handle.js";
 import User, { IUser } from "../users/user_models.js";
 import { Auth } from "./auth_model.js";
-import jwt from 'jsonwebtoken';
 import axios from 'axios';
 
 const registerNewUser = async ({ email, password, name, age }: IUser) => {
@@ -19,15 +18,19 @@ const registerNewUser = async ({ email, password, name, age }: IUser) => {
 
 const loginUser = async ({ email, password }: Auth) => {
     const checkIs = await User.findOne({ email });
+    console.log(checkIs);
     if(!checkIs) return "NOT_FOUND_USER";
-
-    const passwordHash = checkIs.password; //El encriptado que viene de la bbdd
-    const isCorrect = await verified(password, passwordHash);
+    console.log(checkIs.password)
+    const passHash = checkIs.password;
+    const isCorrect = await verified(password, passHash);
+    console.log(isCorrect);
     if(!isCorrect) return "INCORRECT_PASSWORD";
 
-    const token = generateToken(checkIs.email);
+    const accessToken = generateAccessToken(checkIs.email);
+    const refreshToken = generateRefreshToken(checkIs.email);
     const data = {
-        token,
+        accessToken,
+        refreshToken,
         user: checkIs
     }
     return data;
@@ -88,7 +91,7 @@ const googleAuth = async (code: string) => {
         }
 
         // Genera el token JWT
-        const token = generateToken(user.email);
+        const token = generateAccessToken(user.email);
 
         console.log(token);
         return { token, user };
